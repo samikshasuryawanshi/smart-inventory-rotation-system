@@ -10,8 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
+    "@tailwindcss/postcss": "^4.1.10",
+    "axios": "^1.10.0",
+    "dotenv": "^16.5.0",
+    "postcss": "^8.5.5",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-barcode-reader": "^0.0.2",
+    "react-dom": "^19.1.0",
+    "react-qr-reader": "^3.0.0-beta-1",
+    "react-router-dom": "^7.6.2",
+    "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
