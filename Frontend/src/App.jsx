@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Reports from './pages/Reports';
@@ -8,15 +8,13 @@ import ProductList from './components/ProductList/ProductList';
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/add-product" element={<ProductForm />} />
-        <Route path="/products" element={<ProductList />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/reports" element={<Reports />} />
+      <Route path="/add-product" element={<ProductForm />} />
+      <Route path="/products" element={<ProductList />} />
+    </Routes>
   );
 };
 
