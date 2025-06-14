@@ -14,6 +14,7 @@
     "@tailwindcss/postcss": "^4.1.10",
     "@zxing/browser": "^0.1.5",
     "axios": "^1.10.0",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "postcss": "^8.5.5",
     "react": "^19.1.0",
@@ -22,6 +23,7 @@
     "react-qr-barcode-scanner": "^2.1.6",
     "react-qr-reader": "^3.0.0-beta-1",
     "react-router-dom": "^7.6.2",
+    "recharts": "^2.15.3",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
