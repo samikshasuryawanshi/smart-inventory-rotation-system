@@ -16,12 +16,9 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
-<<<<<<< HEAD
     "firebase": "^11.9.1",
     "jwt-decode": "^4.0.0",
-=======
     "lucide-react": "^0.515.0",
->>>>>>> a83cdb68076f549b8838233b563bc8b2702ea296
     "postcss": "^8.5.5",
     "react": "^19.1.0",
     "react-barcode-reader": "^0.0.2",
