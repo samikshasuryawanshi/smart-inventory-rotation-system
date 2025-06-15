@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
 
 const ProductForm = () => {
   const [name, setName] = useState('');
   const [expiry, setExpiry] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +15,16 @@ const ProductForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 flex flex-col justify-center items-center text-white px-4 py-8">
+    <div className="min-h-screen bg-zinc-900 flex flex-col justify-center items-center text-white px-4 py-8 relative">
+      {/* Dashboard Icon */}
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="absolute top-6 left-6 p-2 rounded-full cursor-pointer bg-zinc-700 hover:bg-zinc-600 transition"
+        title="Go to Dashboard"
+      >
+        <LayoutDashboard className="w-6 h-6 text-white" />
+      </button>
+
       <div className="w-full max-w-md bg-zinc-800 rounded-xl p-6 shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center text-white">
           Add New Product
