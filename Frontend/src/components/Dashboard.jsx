@@ -72,16 +72,28 @@ const Dashboard = () => {
             <BarcodeScanner onScan={handleProductScan} />
 
             {/* Display scanned product */}
-            {scannedProduct && (
-              <div className="mt-6 p-4 bg-zinc-700 rounded-xl border border-zinc-600">
+           {scannedProduct && (
+            <div className="mt-6 p-4 bg-zinc-700 rounded-xl border border-zinc-600 flex flex-col gap-4">
+              {/* Product Image */}
+              <img
+                src={scannedProduct.imageUrl || 'https://via.placeholder.com/120x120?text=No+Image'}
+                alt={scannedProduct.name}
+                className="w-32 h-32 rounded-lg object-cover border border-gray-500"
+              />
+
+              {/* Product Info */}
+              <div className="flex-1">
                 <h3 className="text-lg font-bold mb-2">Scanned Product Details:</h3>
                 <p><strong>Code:</strong> {scannedProduct.code}</p>
                 <p><strong>Name:</strong> {scannedProduct.name}</p>
                 <p><strong>Category:</strong> {scannedProduct.category}</p>
                 <p><strong>Expiry:</strong> {scannedProduct.expiryDate}</p>
-                
+                <p><strong>Price:</strong> ₹{scannedProduct.price}</p>
+                <p><strong>Stock:</strong> {scannedProduct.stock} units</p>
+                <p><strong>Manufacturer:</strong> {scannedProduct.manufacturer}</p>
               </div>
-            )}
+            </div>
+          )}
           </div>
         </>
       )}
