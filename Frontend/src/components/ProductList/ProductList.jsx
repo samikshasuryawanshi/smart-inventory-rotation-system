@@ -1,69 +1,58 @@
-import React from 'react';
-import { estimateShelfLifeDays } from '../../services/shelfLifeUtils';
-import { format, addDays } from 'date-fns';
+import React, { useState } from 'react';
+import { format, addDays, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard } from 'lucide-react';
 
-const products = [
-  { name: 'Milk', category: 'dairy' },
-  { name: 'Banana', category: 'fruits' },
-  { name: 'Spinach', category: 'vegetables' },
-  { name: 'Bread', category: 'bakery' },
-];
-
-const getEstimatedExpiryDate = (category) => {
-  const days = estimateShelfLifeDays(category);
-  const estimated = addDays(new Date(), days);
-  return format(estimated, 'dd MMM yyyy');
-};
-
-const ProductList = () => {
+// Initial empty product list
+const ProductList = ({ scannedProducts = [] }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white px-6 py-8 flex flex-col items-center relative">
-      {/* Dashboard Navigation Icon */}
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black text-white px-6 py-8 flex flex-col items-center relative">
       <button
         onClick={() => navigate('/dashboard')}
-        className="absolute top-6 left-6 p-2 rounded-full cursor-pointer bg-zinc-700 hover:bg-zinc-600 transition"
+        className="absolute top-6 left-6 p-2 rounded-full bg-zinc-700 hover:bg-zinc-600 transition"
         title="Go to Dashboard"
       >
         <LayoutDashboard className="w-6 h-6 text-white" />
       </button>
 
-      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-        Estimated Product Shelf Lives
+      <h2 className="text-3xl font-bold mb-10 bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text">
+        Inventory Product List
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-        {products.map((product, index) => {
-          const shelfLife = estimateShelfLifeDays(product.category);
-          const isShortLife = shelfLife <= 3;
+      {scannedProducts.length === 0 ? (
+        <div className="text-gray-400 text-lg">No Products Scanned Yet</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-6xl">
+          {scannedProducts.map((product, index) => {
+            return (
+              <div
+                key={index}
+                className="p-6 rounded-2xl bg-zinc-800 bg-opacity-50 border border-zinc-700 shadow-lg backdrop-blur-sm transition transform hover:scale-105"
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-xl font-semibold">{product.name}</h3>
+                  <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full">
+                    {product.category}
+                  </span>
+                </div>
 
-          return (
-            <div
-              key={index}
-              className={`p-4 rounded-xl shadow-md border-2 ${
-                isShortLife ? 'border-red-500' : 'border-zinc-700'
-              } bg-zinc-800 hover:shadow-lg transition`}
-            >
-              <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-              <p className="mb-1 text-sm">
-                <span className="font-medium text-gray-400">Category:</span>{' '}
-                <span className="uppercase text-blue-400 tracking-wide">{product.category}</span>
-              </p>
-              <p className="mb-1 text-sm">
-                <span className="font-medium text-gray-400">Shelf Life:</span>{' '}
-                {shelfLife} days
-              </p>
-              <p className="text-sm text-gray-400">
-                <span className="font-medium text-gray-400">Est. Expiry:</span>{' '}
-                {getEstimatedExpiryDate(product.category)}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+                {product.imageUrl && (
+                  <img src={product.imageUrl} alt="product" className="w-32 h-32 mx-auto mb-2 rounded-lg" />
+                )}
+
+                <p className="text-sm text-gray-300 mb-2"><strong>Brand:</strong> {product.brand}</p>
+                <p className="text-sm text-gray-300 mb-2"><strong>Batch No:</strong> {product.batchNo}</p>
+                <p className="text-sm text-gray-300 mb-2"><strong>MRP:</strong> ₹ {product.mrp}</p>
+                <p className="text-sm text-gray-300 mb-2"><strong>Manufacture:</strong> {format(parseISO(product.manufactureDate), 'dd MMM yyyy')}</p>
+                <p className="text-sm text-gray-300 mb-2"><strong>Expiry:</strong> {format(parseISO(product.expiryDate), 'dd MMM yyyy')}</p>
+                <p className="text-sm text-gray-400"><strong>Scanned:</strong> {format(parseISO(product.scannedAt), 'dd MMM yyyy hh:mm a')}</p>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   );
 };
