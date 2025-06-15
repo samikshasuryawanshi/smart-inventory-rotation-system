@@ -16,6 +16,8 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
+    "firebase": "^11.9.1",
+    "jwt-decode": "^4.0.0",
     "postcss": "^8.5.5",
     "react": "^19.1.0",
     "react-barcode-reader": "^0.0.2",
