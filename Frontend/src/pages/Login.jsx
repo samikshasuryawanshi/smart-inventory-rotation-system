@@ -28,41 +28,53 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-zinc-900 text-white">
-      <h2 className="text-2xl mb-4 font-bold">Login</h2>
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4 py-12">
+      <div className="bg-zinc-900 p-8 rounded-2xl shadow-2xl max-w-md w-full space-y-6">
+        <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
+          Welcome Back
+        </h2>
+        <p className="text-gray-400 text-center text-sm">
+          Login to your Smart Inventory Dashboard
+        </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-zinc-800 p-6 rounded-xl shadow-md flex flex-col gap-4 w-full max-w-sm"
-      >
-        <input
-          type="email"
-          className="px-4 py-2 rounded bg-zinc-700 text-white"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          className="px-4 py-2 rounded bg-zinc-700 text-white"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="bg-gradient-to-r from-blue-600 to-purple-600 py-2 rounded font-semibold hover:opacity-90"
-        >
-          Login
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full px-4 py-3 rounded-lg bg-zinc-800 text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full px-4 py-3 rounded-lg bg-zinc-800 text-white focus:ring-2 focus:ring-purple-500 outline-none transition"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-purple-600 hover:to-blue-600 rounded-lg text-white font-semibold transition-all duration-300"
+          >
+            Login
+          </button>
+        </form>
 
-      <div className="mt-6">
+        <div className="flex items-center gap-2">
+          <div className="flex-grow h-px bg-zinc-700" />
+          <span className="text-gray-500 text-sm">OR</span>
+          <div className="flex-grow h-px bg-zinc-700" />
+        </div>
+
         <button
           onClick={handleGoogleLogin}
-          className="bg-red-500 py-2 px-6 rounded font-semibold hover:opacity-90"
+          className="w-full py-3 bg-red-500 hover:bg-red-600 rounded-lg text-white font-semibold transition duration-300"
         >
           Sign in with Google
         </button>

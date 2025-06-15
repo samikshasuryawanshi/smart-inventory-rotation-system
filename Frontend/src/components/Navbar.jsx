@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error.message);
+    }
+  };
 
   return (
     <>
@@ -15,9 +27,12 @@ const Sidebar = () => {
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Overlay background blur for small screens */}
+      {/* Background blur on sidebar open (mobile) */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-30 md:hidden" onClick={() => setIsOpen(false)}></div>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setIsOpen(false)}
+        ></div>
       )}
 
       {/* Sidebar */}
@@ -29,6 +44,7 @@ const Sidebar = () => {
         <h1 className="text-2xl font-bold mb-8 mt-15 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
           Smart Inventory
         </h1>
+
         <nav className="flex flex-col gap-2">
           <Link
             to="/dashboard"
@@ -55,14 +71,24 @@ const Sidebar = () => {
             Reports
           </Link>
         </nav>
+
+        {/* Logout Button */}
+        <div className="mt-auto pt-8">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-red-500 hover:text-red-400 font-medium px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors w-full"
+          >
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
       </aside>
 
-      {/* Page content wrapper */}
+      {/* Page Content Wrapper */}
       <div className="md:ml-64 pt-6 px-4 sm:px-6 md:px-8 transition-all duration-300">
-        {/* Your routed content will be rendered here */}
+        {/* Routed content will appear here */}
       </div>
     </>
   );
 };
 
-export default Sidebar;
+export default Navbar;
