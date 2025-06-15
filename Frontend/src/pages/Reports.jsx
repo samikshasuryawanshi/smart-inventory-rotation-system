@@ -1,21 +1,50 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import React, { useEffect, useState } from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+} from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard } from 'lucide-react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
-const mockData = [
-  { category: 'Dairy', expired: 5, remaining: 20 },
-  { category: 'Fruits', expired: 3, remaining: 12 },
-  { category: 'Bakery', expired: 4, remaining: 8 },
-  { category: 'Meat', expired: 2, remaining: 15 },
-];
 
 const Reports = () => {
   const navigate = useNavigate();
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchReportData = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'products'));
+        const categoryMap = {};
+
+        snapshot.forEach(doc => {
+          const product = doc.data();
+          const category = product.category || 'Uncategorized';
+          const expired = new Date(product.expiryDate) < new Date();
+
+          if (!categoryMap[category]) {
+            categoryMap[category] = { category, expired: 0, remaining: 0 };
+          }
+
+          if (expired) {
+            categoryMap[category].expired += 1;
+          } else {
+            categoryMap[category].remaining += 1;
+          }
+        });
+
+        setData(Object.values(categoryMap));
+      } catch (error) {
+        console.error('Failed to fetch report data:', error);
+      }
+    };
+
+    fetchReportData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white p-6 flex flex-col items-center relative">
-      {/* Dashboard Icon */}
       <button
         onClick={() => navigate('/dashboard')}
         className="absolute top-6 left-6 p-2 rounded-full cursor-pointer bg-zinc-700 hover:bg-zinc-600 transition"
@@ -35,7 +64,7 @@ const Reports = () => {
       <div className="w-full max-w-4xl bg-zinc-800 rounded-2xl p-6 shadow-md">
         <h3 className="text-xl font-semibold mb-4">Product Expiry Overview</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={mockData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+          <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis dataKey="category" stroke="#ccc" />
             <YAxis stroke="#ccc" />

@@ -1,75 +1,68 @@
-import React, { useState, useRef, useCallback } from 'react';
-import BarcodeScannerComponent from 'react-qr-barcode-scanner';
+import React, { useEffect, useRef } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
 const BarcodeScanner = ({ onScan }) => {
-  const [liveData, setLiveData] = useState(null);
-  const [imageData, setImageData] = useState(null);
-  const inputRef = useRef(null);
+  const videoRef = useRef(null);
   const codeReader = useRef(new BrowserMultiFormatReader());
 
-  // Handle Live Scan (Camera)
-  const handleLiveScan = useCallback((result) => {
-    if (result && result.text && result.text !== liveData) {
-      setLiveData(result.text);
-      onScan(result.text);
-    }
-  }, [liveData, onScan]);
+  useEffect(() => {
+    const startScanner = async () => {
+      try {
+        const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+        const deviceId = devices[0]?.deviceId;
 
-  // Handle Uploaded Image Scan
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+        await codeReader.current.decodeFromVideoDevice(
+          deviceId,
+          videoRef.current,
+          (result, err) => {
+            if (result) {
+              onScan(result.getText());
+            }
+          }
+        );
+      } catch (err) {
+        console.error('Camera Scanner Error:', err);
+      }
+    };
+
+    startScanner();
+    return () => {
+      // Safely stop camera
+      if (codeReader.current) {
+        codeReader.current.reset?.(); // Optional chaining
+      }
+    };
+  }, [onScan]);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
-
-    try {
-      const result = await codeReader.current.decodeFromImageUrl(imageUrl);
-      if (result?.text && result.text !== imageData) {
-        setImageData(result.text);
-        onScan(result.text);
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.onload = async () => {
+      try {
+        const result = await codeReader.current.decodeFromImageElement(img);
+        onScan(result.getText());
+      } catch (err) {
+        alert('Could not detect a code in the image.');
       }
-    } catch (err) {
-      console.error("Image decoding failed:", err);
-      setImageData("Decoding failed");
-    } finally {
-      URL.revokeObjectURL(imageUrl);
-    }
+    };
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 border-2 border-zinc-800 rounded-2xl shadow-md">
-      
-      <div className="aspect-w-4 aspect-h-3 bg-zinc-900 rounded overflow-hidden mb-4">
-        <BarcodeScannerComponent
-          onUpdate={(err, result) => {
-            if (result) handleLiveScan(result);
-          }}
-          width={500}
-          height={400}
-        />
-      </div>
+    <div className="flex flex-col items-center gap-4">
+      <video ref={videoRef} className="w-full max-h-[300px] rounded border border-gray-500" />
 
-      <div className="text-white text-center mb-4">
-        <p>Live Scan Result: <span className="font-mono">{liveData || 'None'}</span></p>
-        <p>Image Scan Result: <span className="font-mono">{imageData || 'None'}</span></p>
-      </div>
-
-      <div className="text-center">
-        <button
-          className="bg-zinc-700 text-white px-4 py-2 rounded hover:bg-zinc-600"
-          onClick={() => inputRef.current.click()}
-        >
-          Upload Image for Scan
-        </button>
+      <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Upload Image to Scan
         <input
           type="file"
           accept="image/*"
-          ref={inputRef}
           onChange={handleImageUpload}
           className="hidden"
         />
-      </div>
+      </label>
     </div>
   );
 };
