@@ -1,5 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
 
 const mockData = [
   { category: 'Dairy', expired: 5, remaining: 20 },
@@ -9,8 +11,19 @@ const mockData = [
 ];
 
 const Reports = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-zinc-900 text-white p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-zinc-900 text-white p-6 flex flex-col items-center relative">
+      {/* Dashboard Icon */}
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="absolute top-6 left-6 p-2 rounded-full cursor-pointer bg-zinc-700 hover:bg-zinc-600 transition"
+        title="Go to Dashboard"
+      >
+        <LayoutDashboard className="w-6 h-6 text-white" />
+      </button>
+
       <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
         Reports & Analytics
       </h2>

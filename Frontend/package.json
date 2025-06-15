@@ -16,6 +16,7 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
+    "lucide-react": "^0.515.0",
     "postcss": "^8.5.5",
     "react": "^19.1.0",
     "react-barcode-reader": "^0.0.2",
