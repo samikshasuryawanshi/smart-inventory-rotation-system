@@ -1,35 +1,37 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import BarcodeScannerComponent from 'react-qr-barcode-scanner';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
 const BarcodeScanner = ({ onScan }) => {
-  const [data, setData] = useState(null);
-  const [imageResult, setImageResult] = useState(null);
+  const [liveData, setLiveData] = useState(null);
+  const [imageData, setImageData] = useState(null);
   const inputRef = useRef(null);
+  const codeReader = useRef(new BrowserMultiFormatReader());
 
-  const handleScan = (result) => {
-    if (result && result.text && result.text !== data) {
-      setData(result.text);
+  // Handle Live Scan (Camera)
+  const handleLiveScan = useCallback((result) => {
+    if (result && result.text && result.text !== liveData) {
+      setLiveData(result.text);
       onScan(result.text);
     }
-  };
+  }, [liveData, onScan]);
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
+  // Handle Uploaded Image Scan
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
     const imageUrl = URL.createObjectURL(file);
-    const codeReader = new BrowserMultiFormatReader();
 
     try {
-      const result = await codeReader.decodeFromImageUrl(imageUrl);
-      if (result?.text) {
-        setImageResult(result.text);
+      const result = await codeReader.current.decodeFromImageUrl(imageUrl);
+      if (result?.text && result.text !== imageData) {
+        setImageData(result.text);
         onScan(result.text);
       }
     } catch (err) {
-      console.error("Decoding failed", err);
-      setImageResult("Decoding failed");
+      console.error("Image decoding failed:", err);
+      setImageData("Decoding failed");
     } finally {
       URL.revokeObjectURL(imageUrl);
     }
@@ -37,10 +39,11 @@ const BarcodeScanner = ({ onScan }) => {
 
   return (
     <div className="w-full max-w-md mx-auto p-4 border-2 border-zinc-800 rounded-2xl shadow-md">
+      
       <div className="aspect-w-4 aspect-h-3 bg-zinc-900 rounded overflow-hidden mb-4">
         <BarcodeScannerComponent
           onUpdate={(err, result) => {
-            if (result) handleScan(result);
+            if (result) handleLiveScan(result);
           }}
           width={500}
           height={400}
@@ -48,8 +51,8 @@ const BarcodeScanner = ({ onScan }) => {
       </div>
 
       <div className="text-white text-center mb-4">
-        <p>Live Scan Result: <span className="font-mono">{data || 'None'}</span></p>
-        <p>Image Scan Result: <span className="font-mono">{imageResult || 'None'}</span></p>
+        <p>Live Scan Result: <span className="font-mono">{liveData || 'None'}</span></p>
+        <p>Image Scan Result: <span className="font-mono">{imageData || 'None'}</span></p>
       </div>
 
       <div className="text-center">
