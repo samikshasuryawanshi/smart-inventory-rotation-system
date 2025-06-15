@@ -58,12 +58,12 @@ const Navbar = () => {
           >
             Add Product
           </Link>
-          <Link
+          {/* <Link
             to="/products"
             className="px-4 py-2 rounded-lg hover:bg-zinc-800 hover:text-blue-400 transition-colors text-white font-medium"
           >
             View Products
-          </Link>
+          </Link> */}
           <Link
             to="/reports"
             className="px-4 py-2 rounded-lg hover:bg-zinc-800 hover:text-blue-400 transition-colors text-white font-medium"

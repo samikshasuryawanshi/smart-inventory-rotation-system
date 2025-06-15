@@ -65,7 +65,7 @@ const Dashboard = () => {
           </div>
 
           {/* Scanner Section */}
-          <div className="w-full max-w-2xl bg-zinc-800 p-6 rounded-2xl shadow-md">
+          <div className="w-full max-w-2xl p-6 rounded-2xl shadow-md">
             <h2 className="text-xl font-semibold mb-4 text-center">Scan Product Barcode / QR</h2>
 
             {/* Live camera + upload scanner */}

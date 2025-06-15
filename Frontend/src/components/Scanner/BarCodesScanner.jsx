@@ -1,26 +1,38 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import axios from 'axios';
+import ProductList from '../ProductList/ProductList';
 
 const BarcodeScanner = () => {
   const videoRef = useRef(null);
   const codeReader = useRef(new BrowserMultiFormatReader());
-  const [scannedCode, setScannedCode] = useState('');
-  const [productData, setProductData] = useState(null);
+  const [scannedCodes, setScannedCodes] = useState(new Set());
   const [status, setStatus] = useState('');
+  const [productList, setProductList] = useState([]);
 
   const fetchProductDetails = async (barcode) => {
     setStatus('Fetching product details...');
     try {
       const response = await axios.get(
-        `https://corsproxy.io/?https://api.barcodelookup.com/v3/products?barcode=${barcode}&formatted=y&key=1s4jnf4pbb4pf7p61nyta3w6i2qkz7`
+        `/api/v3/products?barcode=${barcode}&formatted=y&key=1s4jnf4pbb4pf7p61nyta3w6i2qkz7`
       );
 
-      if (response.data.products.length > 0) {
-        setProductData(response.data.products[0]);
+      if (response.data.products?.length > 0) {
+        const product = response.data.products[0];
+        const extractedData = {
+          name: product.product_name || product.title || 'N/A',
+          brand: product.brand || 'N/A',
+          mrp: product.stores?.[0]?.price || 'N/A',
+          manufacture_date: product.manufacturer_date || 'N/A',
+          expiry_date: product.expiry_date || 'N/A',
+          barcode,
+          image: product.images?.[0] || '',
+          scannedAt: new Date().toLocaleString(),
+        };
+
+        setProductList((prev) => [extractedData, ...prev]);
         setStatus('✅ Product found');
       } else {
-        setProductData(null);
         setStatus('❌ Product not found');
       }
     } catch (error) {
@@ -29,7 +41,21 @@ const BarcodeScanner = () => {
     }
   };
 
+  const handleScanResult = useCallback(
+    (code) => {
+      if (!scannedCodes.has(code)) {
+        setScannedCodes((prev) => new Set(prev).add(code));
+        fetchProductDetails(code);
+      } else {
+        setStatus('Barcode already scanned');
+      }
+    },
+    [scannedCodes]
+  );
+
   useEffect(() => {
+    let active = true;
+
     const startScanner = async () => {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
@@ -40,15 +66,16 @@ const BarcodeScanner = () => {
 
         const selectedDeviceId = devices[0]?.deviceId;
 
-        codeReader.current.decodeFromVideoDevice(selectedDeviceId, videoRef.current, (result, err) => {
-          if (result) {
-            const code = result.getText();
-            if (code !== scannedCode) {
-              setScannedCode(code);
-              fetchProductDetails(code);
+        codeReader.current.decodeFromVideoDevice(
+          selectedDeviceId,
+          videoRef.current,
+          (result, err) => {
+            if (result && active) {
+              const code = result.getText();
+              handleScanResult(code);
             }
           }
-        });
+        );
       } catch (error) {
         console.error('Error accessing camera:', error);
         setStatus('❌ Camera error');
@@ -59,14 +86,13 @@ const BarcodeScanner = () => {
 
     return () => {
       try {
-        codeReader.current.reset();
+        codeReader.current.stopContinuousDecode();
       } catch (err) {
-        console.error('Reset decoding error:', err);
+        console.warn('Scanner not running:', err);
       }
     };
-  }, [scannedCode]);
+  }, [handleScanResult]);
 
-  // 👉 Handle file upload scanning
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -78,8 +104,7 @@ const BarcodeScanner = () => {
       try {
         const result = await codeReader.current.decodeFromImageElement(img);
         const code = result.getText();
-        setScannedCode(code);
-        fetchProductDetails(code);
+        handleScanResult(code);
       } catch (error) {
         console.error('Failed to decode image', error);
         setStatus('❌ Failed to decode uploaded image');
@@ -88,26 +113,35 @@ const BarcodeScanner = () => {
   };
 
   return (
-    <div>
-      <h1>Barcode Scanner</h1>
+    <div className="min-h-screen text-white">
 
-      <div>
-        <h3>Live Camera Scanner:</h3>
-        <video ref={videoRef} style={{ width: '100%' }} />
-      </div>
-
-      <div style={{ marginTop: '20px' }}>
-        <h3>Or Upload Barcode Image:</h3>
-        <input type="file" accept="image/*" onChange={handleFileUpload} />
-      </div>
-
-      <p>Status: {status}</p>
-      {productData && (
-        <div>
-          <h3>Product Details:</h3>
-          <pre>{JSON.stringify(productData, null, 2)}</pre>
+      <div className="flex flex-col md:flex-col gap-8 justify-center items-center">
+        <div className="bg-[#1e1e1e] p-6 rounded-lg w-full max-w-md">
+          <h2 className="text-xl mb-4">Live Camera</h2>
+          <video ref={videoRef} className="rounded-lg w-full" />
         </div>
-      )}
+
+        <div className="bg-[#1e1e1e] p-6 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-xl mb-4">Upload Image</h2>
+          <label className="block">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="w-full text-sm text-gray-400 
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-cyan-500 file:text-white
+                hover:file:bg-cyan-600"
+            />
+          </label>
+        </div>
+      </div>
+
+      <p className="text-center mt-6 font-semibold text-cyan-400">{status}</p>
+
+      <ProductList products={productList} />
     </div>
   );
 };
